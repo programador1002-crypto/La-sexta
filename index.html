@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,27 +19,18 @@
 
         .contador-container {
             background-color: #ffffff;
-            border: 2px solid #b3a164;
-            /* Borde Dorado Madridista */
+            border: 2px solid #b3a164; /* Borde Dorado Madridista */
             border-radius: 12px;
             padding: 35px;
             text-align: center;
             max-width: 550px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         h2 {
             font-size: 22px;
-            color: #1e2a4a;
-            /* Azul oscuro */
-            margin-bottom: 5px;
-        }
-
-        .estado-api {
-            font-size: 11px;
-            color: #70757a;
-            margin-bottom: 25px;
-            font-weight: bold;
+            color: #1e2a4a; /* Azul oscuro */
+            margin-bottom: 25px; /* Más espacio al quitar el aviso */
         }
 
         /* Marcador de tiempo congelado */
@@ -52,103 +42,72 @@
         }
 
         #contador span {
-            color: #b3a164;
-            /* Números en dorado */
+            color: #b3a164; /* Números en dorado */
             font-size: 22px;
         }
 
         .burlas {
             font-size: 12px;
             color: #70757a;
-            margin-top: 15px;
+            margin-top: 25px;
             font-style: italic;
         }
     </style>
 </head>
-
 <body>
 
     <div class="contador-container">
         <h2>Tiempo esperando la Sexta del Barça: ⌛⏳</h2>
-        <div id="estado" class="estado-api">Conectando con servidores de la UEFA...</div>
-
+        
+        <!-- El cronómetro principal se despliega aquí directamente -->
         <div id="contador">Calculando congelamiento...</div>
-
+        
         <div class="burlas">"Operación VarNegreira en observación por la UEFA..."</div>
     </div>
 
     <script>
-        // Fecha de la última Champions del Barça (6 de junio de 2015)
-        let fechaChampions = new Date('2015-06-06T22:00:00');
+    // Fecha inmutable de la última Champions del Barça (6 de junio de 2015)
+    const fechaChampions = new Date('2015-06-06T22:00:00');
 
-        // Tu Token de Football-Data.org
-        const tokenAPI = 'a1b570968c674991a1b4ca1c2de053';
+    function actualizarReloj() {
+        const ahora = new Date();
 
-        async function conectarUEFA() {
-            const url = 'https://football-data.org';
+        if (ahora >= fechaChampions) {
+            let anos = ahora.getFullYear() - fechaChampions.getFullYear();
+            let meses = ahora.getMonth() - fechaChampions.getMonth();
+            let dias = ahora.getDate() - fechaChampions.getDate();
 
-            try {
-                const respuesta = await fetch(url, {
-                    method: 'GET',
-                    headers: { 'X-Auth-Token': tokenAPI }
-                });
-
-                if (!respuesta.ok) throw new Error("Error");
-                const datos = await respuesta.json();
-
-                // Sincronización exitosa
-                document.getElementById('estado').style.color = "#2b732b";
-                document.getElementById('estado').innerText = "✅ Sincronizado con la UEFA: Siguen congelados en 5 Champions.";
-
-            } catch (error) {
-                // Respaldo local
-                document.getElementById('estado').style.color = "#1e2a4a";
-                document.getElementById('estado').innerText = "ℹ️ Servidor UEFA en espera. Datos de la última Champions (2015) cargados.";
+            // Algoritmo matemático para meses de duración variable (28, 30 o 31 días)
+            if (dias < 0) {
+                meses--;
+                const ultimoDiaMesAnterior = new Date(ahora.getFullYear(), ahora.getMonth(), 0).getDate();
+                dias += ultimoDiaMesAnterior;
             }
 
-            actualizarReloj();
-            setInterval(actualizarReloj, 1000);
-        }
+            if (meses < 0) {
+                anos--;
+                meses += 12;
+            }
 
-        function actualizarReloj() {
-            const ahora = new Date();
+            let totalSegundos = Math.floor((ahora - fechaChampions) / 1000);
+            let horas = Math.floor((totalSegundos / 3600) % 24);
+            let minutes = Math.floor((totalSegundos / 60) % 60);
+            let segundos = totalSegundos % 60;
 
-            if (ahora >= fechaChampions) {
-                let anos = ahora.getFullYear() - fechaChampions.getFullYear();
-                // CÓDIGO CORREGIDO:
-                let meses = ahora.getMonth() - fechaChampions.getMonth();
-
-                let dias = ahora.getDate() - fechaChampions.getDate();
-
-                if (dias < 0) {
-                    meses--;
-                    const ultimoDiaMesAnterior = new Date(ahora.getFullYear(), ahora.getMonth(), 0).getDate();
-                    dias += ultimoDiaMesAnterior;
-                }
-
-                if (meses < 0) {
-                    anos--;
-                    meses += 12;
-                }
-
-                let totalSegundos = Math.floor((ahora - fechaChampions) / 1000);
-                let horas = Math.floor((totalSegundos / 3600) % 24);
-                let minutos = Math.floor((totalSegundos / 60) % 60);
-                let segundos = totalSegundos % 60;
-
-                document.getElementById('contador').innerHTML =
-                    `<span>${anos} años</span>, 
+            document.getElementById('contador').innerHTML = 
+                `<span>${anos} años</span>, 
                  <span>${meses} meses</span>, 
                  <span>${dias} días</span>, <br>
                  <span>${horas} horas</span>, 
-                 <span>${minutos} minutos</span> y 
+                 <span>${minutes} minutos</span> y 
                  <span>${segundos} segundos</span>`;
-            }
         }
+    }
 
-        window.onload = conectarUEFA;
+    // Arrancamos el bucle del cronómetro inmediatamente a 1000ms (1 segundo)
+    actualizarReloj();
+    setInterval(actualizarReloj, 1000);
     </script>
 
 </body>
-
 </html>
